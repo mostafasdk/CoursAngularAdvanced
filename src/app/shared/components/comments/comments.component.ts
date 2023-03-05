@@ -1,4 +1,4 @@
-import { animate, state, style, transition, trigger } from '@angular/animations';
+import { animate, query, state, style, transition, trigger } from '@angular/animations';
 import { Component, Input, OnInit, Output, EventEmitter } from '@angular/core';
 import { FormBuilder, FormControl, Validators } from '@angular/forms';
 import { Comment } from 'app/core/models/comment.model';
@@ -25,6 +25,28 @@ import { Comment } from 'app/core/models/comment.model';
       transition('active => default', [
         animate('500ms ease-in-out')
       ]),
+      transition(':enter', [
+        query('span', [
+          style({
+            opacity: 0
+          })
+        ]),
+        style({
+            transform: 'translateX(-100%)',
+            opacity: 0,
+            'background-color': 'rgb(201, 157, 242)',
+        }),
+        animate('250ms ease-out', style({
+            transform: 'translateX(0)',
+            opacity: 1,
+            'background-color': 'white',
+        })),
+        query('span', [
+          animate('500ms', style({
+            opacity: 1
+          }))
+        ])
+    ])
     ])
   ]
 })
@@ -50,6 +72,13 @@ export class CommentsComponent implements OnInit {
     if (this.commentCtrl.invalid) {
       return;
     }
+    const maxId = Math.max(...this.comments.map(comment => comment.id));
+    this.comments.unshift({
+        id: maxId + 1,
+        comment: this.commentCtrl.value,
+        createdDate: new Date().toISOString(),
+        userId: 1
+    });
     this.newComment.emit(this.commentCtrl.value);
     this.commentCtrl.reset();
   }
