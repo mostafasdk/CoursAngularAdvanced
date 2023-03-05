@@ -3,4 +3,6 @@ export class Comment {
     userId!: number;
     comment!: string;
     createdDate!: string;
+
+    // listItemAnimationState: 'default' | 'active' = 'default';
 }
