@@ -11,6 +11,7 @@
     <h2 matSubheader>Commentaires</h2>
     <mat-list-item *ngFor="let comment of comments">
         <span mat-line>{{ comment.comment }}</span>
-        <span mat-line>{{ comment.createdDate | date }}</span>
+        <span mat-line [ngStyle]="{'font': 'italic 80% sans-serif'}"> {{ comment.createdDate | timeAgo }}</span>
+        <span mat-line [ngStyle]="{'font': 'italic 80% sans-serif'}"> par {{ user | fullname: 'en' }}</span>
     </mat-list-item>
 </mat-list>
