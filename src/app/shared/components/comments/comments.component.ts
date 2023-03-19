@@ -1,13 +1,24 @@
-import { animate, query, state, style, transition, trigger } from '@angular/animations';
+import { animate, animateChild, group, query, sequence, stagger, state, style, transition, trigger, useAnimation } from '@angular/animations';
 import { Component, Input, OnInit, Output, EventEmitter } from '@angular/core';
 import { FormBuilder, FormControl, Validators } from '@angular/forms';
 import { Comment } from 'app/core/models/comment.model';
+import { flashAnimation } from 'app/shared/animations/flash.animation';
+import { slideAndFadeAnimation } from 'app/shared/animations/slideAndFade.animation';
 
 @Component({
   selector: 'app-comments',
   templateUrl: './comments.component.html',
   styleUrls: ['./comments.component.scss'],
   animations: [
+    trigger('list', [
+      transition(':enter', [
+          query('@listItem', [ //on sélectionne tous les éléments ayant le trigger "@listItem"
+              stagger(50, [ //décale l'animation de chaque élément de 50ms
+                  animateChild() //déclenche l'animation de chaque élément
+              ])
+          ])
+      ])
+  ]),
     trigger('listItem', [
       state('default', style({
         transform: 'scale(1)',
@@ -15,7 +26,7 @@ import { Comment } from 'app/core/models/comment.model';
         'z-index': 1
       })),
       state('active', style({
-        transform: 'scale(1.05)',
+        transform: 'scale(1.02)',
         'background-color': 'rgb(201, 157, 242)',
         'z-index': 2
       })),
@@ -26,26 +37,35 @@ import { Comment } from 'app/core/models/comment.model';
         animate('500ms ease-in-out')
       ]),
       transition(':enter', [
-        query('span', [
+        query('.comment-text, .comment-details', [
           style({
             opacity: 0
           })
         ]),
-        style({
-            transform: 'translateX(-100%)',
-            opacity: 0,
-            'background-color': 'rgb(201, 157, 242)',
+        useAnimation(slideAndFadeAnimation, {
+          params: {
+            time: '500ms',
+            startColor: 'rgb(201, 157, 242)'
+          }
         }),
-        animate('250ms ease-out', style({
-            transform: 'translateX(0)',
-            opacity: 1,
-            'background-color': 'white',
-        })),
-        query('span', [
-          animate('500ms', style({
-            opacity: 1
-          }))
-        ])
+        group([ //exécute toutes les animations contenues dans cette méthode en même temps
+          useAnimation(flashAnimation, {
+            params: {
+              time: '250ms',
+              flashColor: 'rgb(249,179,111)'
+            }
+          }),
+          query('.comment-text', [
+            animate('250ms', style({
+              opacity: 1
+            }))
+          ]),
+          query('.comment-details', [
+            animate('500ms', style({
+              opacity: 1
+            }))
+          ])
+        ]),
     ])
     ])
   ]
